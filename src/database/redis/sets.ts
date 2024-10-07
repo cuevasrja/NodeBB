@@ -1,3 +1,4 @@
+// Interfaces for the Redis client
 interface Client {
     sadd: (key: string, value: string | string[]) => Promise<void>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -9,6 +10,7 @@ interface Client {
     spop: (key: string) => Promise<string | null>;
 }
 
+// Interfaces for the module
 interface ModuleWithClient {
     client: Client;
     setAdd: (key: string, value: string | string[]) => Promise<void>;
@@ -29,6 +31,7 @@ export default function (module: ModuleWithClient): ModuleWithClient {
 	// eslint-disable-next-line @typescript-eslint/no-require-imports
 	const { execBatch, resultsToBool } = require('./helpers');
 
+	// setAdd adds a value to a set
 	module.setAdd = async function (key: string, value: string | string[]): Promise<void> {
 		if (!Array.isArray(value)) {
 			value = [value];
@@ -39,6 +42,7 @@ export default function (module: ModuleWithClient): ModuleWithClient {
 		await module.client.sadd(key, value);
 	};
 
+	// setsAdd adds a value to multiple
 	module.setsAdd = async function (keys: string[], value: string): Promise<void> {
 		if (!Array.isArray(keys) || !keys.length) {
 			return;
@@ -48,6 +52,7 @@ export default function (module: ModuleWithClient): ModuleWithClient {
 		await execBatch(batch);
 	};
 
+	// setRemove removes a value from a set
 	module.setRemove = async function (key: string | string[], value: string | string[]): Promise<void> {
 		if (!Array.isArray(value)) {
 			value = [value];
@@ -64,17 +69,20 @@ export default function (module: ModuleWithClient): ModuleWithClient {
 		await execBatch(batch);
 	};
 
+	// setsRemove removes a value from multiple sets
 	module.setsRemove = async function (keys: string[], value: string): Promise<void> {
 		const batch = module.client.batch();
 		keys.forEach(k => batch.srem(String(k), value));
 		await execBatch(batch);
 	};
 
+	// isSetMember checks if a value is a member of a set
 	module.isSetMember = async function (key: string, value: string): Promise<boolean> {
 		const result = await module.client.sismember(key, value);
 		return result === 1;
 	};
 
+	// isSetMembers checks if values are members of a set
 	module.isSetMembers = async function (key: string, values: string[]): Promise<boolean[] | null> {
 		const batch = module.client.batch();
 		values.forEach(v => batch.sismember(String(key), String(v)));
@@ -82,6 +90,7 @@ export default function (module: ModuleWithClient): ModuleWithClient {
 		return results ? resultsToBool(results) : null;
 	};
 
+	// isMemberOfSets checks if a value is a member of multiple sets
 	module.isMemberOfSets = async function (sets: string[], value: string): Promise<boolean[] | null> {
 		const batch = module.client.batch();
 		sets.forEach(s => batch.sismember(String(s), String(value)));
@@ -89,26 +98,31 @@ export default function (module: ModuleWithClient): ModuleWithClient {
 		return results ? resultsToBool(results) : null;
 	};
 
+	// getSetMembers returns all members of a set
 	module.getSetMembers = async function (key: string): Promise<string[]> {
 		return await module.client.smembers(key);
 	};
 
+	// getSetsMembers returns all members of multiple sets
 	module.getSetsMembers = async function (keys: string[]): Promise<string[]> {
 		const batch = module.client.batch();
 		keys.forEach(k => batch.smembers(String(k)));
 		return await execBatch(batch);
 	};
 
+	// setCount returns the number of members in a set
 	module.setCount = async function (key: string): Promise<number> {
 		return await module.client.scard(key);
 	};
 
+	// setsCount returns the number of members in multiple sets
 	module.setsCount = async function (keys: string[]): Promise<number[]> {
 		const batch = module.client.batch();
 		keys.forEach(k => batch.scard(String(k)));
 		return await execBatch(batch);
 	};
 
+	// setRemoveRandom removes a random member from a set
 	module.setRemoveRandom = async function (key: string): Promise<string | null> {
 		return await module.client.spop(key);
 	};
