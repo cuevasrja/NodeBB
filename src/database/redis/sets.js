@@ -1,239 +1,91 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+
+module.exports = function (module) {
+	const helpers = require("./helpers");
+
+	module.setAdd = async function (key, value) {
+		if (!Array.isArray(value)) {
+			value = [value];
+		}
+		if (!value.length) {
+			return;
+		}
+		await module.client.sadd(key, value);
+	};
+
+	module.setsAdd = async function (keys, value) {
+		if (!Array.isArray(keys) || !keys.length) {
+			return;
+		}
+		const batch = module.client.batch();
+		keys.forEach((k) => batch.sadd(String(k), String(value)));
+		await helpers.execBatch(batch);
+	};
+
+	module.setRemove = async function (key, value) {
+		if (!Array.isArray(value)) {
+			value = [value];
+		}
+		if (!Array.isArray(key)) {
+			key = [key];
+		}
+		if (!value.length) {
+			return;
+		}
+
+		const batch = module.client.batch();
+		key.forEach((k) => batch.srem(String(k), value));
+		await helpers.execBatch(batch);
+	};
+
+	module.setsRemove = async function (keys, value) {
+		const batch = module.client.batch();
+		keys.forEach((k) => batch.srem(String(k), value));
+		await helpers.execBatch(batch);
+	};
+
+	module.isSetMember = async function (key, value) {
+		const result = await module.client.sismember(key, value);
+		return result === 1;
+	};
+
+	module.isSetMembers = async function (key, values) {
+		const batch = module.client.batch();
+		values.forEach((v) => batch.sismember(String(key), String(v)));
+		const results = await helpers.execBatch(batch);
+		return results ? helpers.resultsToBool(results) : null;
+	};
+
+	module.isMemberOfSets = async function (sets, value) {
+		const batch = module.client.batch();
+		sets.forEach((s) => batch.sismember(String(s), String(value)));
+		const results = await helpers.execBatch(batch);
+		return results ? helpers.resultsToBool(results) : null;
+	};
+
+	module.getSetMembers = async function (key) {
+		return await module.client.smembers(key);
+	};
+
+	module.getSetsMembers = async function (keys) {
+		const batch = module.client.batch();
+		keys.forEach((k) => batch.smembers(String(k)));
+		return await helpers.execBatch(batch);
+	};
+
+	module.setCount = async function (key) {
+		return await module.client.scard(key);
+	};
+
+	module.setsCount = async function (keys) {
+		const batch = module.client.batch();
+		keys.forEach((k) => batch.scard(String(k)));
+		return await helpers.execBatch(batch);
+	};
+
+	module.setRemoveRandom = async function (key) {
+		return await module.client.spop(key);
+	};
+
+	return module;
 };
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = default_1;
-var helpers_1 = require("./helpers");
-function default_1(module) {
-    // // eslint-disable-next-line @typescript-eslint/no-require-imports
-    // const { execBatch, resultsToBool } = require('./helpers');
-    // setAdd adds a value to a set
-    module.setAdd = function (key, value) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!Array.isArray(value)) {
-                            value = [value];
-                        }
-                        if (!value.length) {
-                            return [2 /*return*/];
-                        }
-                        return [4 /*yield*/, module.client.sadd(key, value)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    // setsAdd adds a value to multiple
-    module.setsAdd = function (keys, value) {
-        return __awaiter(this, void 0, void 0, function () {
-            var batch;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!Array.isArray(keys) || !keys.length) {
-                            return [2 /*return*/];
-                        }
-                        batch = module.client.batch();
-                        keys.forEach(function (k) { return batch.sadd(String(k), String(value)); });
-                        return [4 /*yield*/, (0, helpers_1.execBatch)(batch)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    // setRemove removes a value from a set
-    module.setRemove = function (key, value) {
-        return __awaiter(this, void 0, void 0, function () {
-            var batch;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!Array.isArray(value)) {
-                            value = [value];
-                        }
-                        if (!Array.isArray(key)) {
-                            key = [key];
-                        }
-                        if (!value.length) {
-                            return [2 /*return*/];
-                        }
-                        batch = module.client.batch();
-                        key.forEach(function (k) { return batch.srem(String(k), value); });
-                        return [4 /*yield*/, (0, helpers_1.execBatch)(batch)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    // setsRemove removes a value from multiple sets
-    module.setsRemove = function (keys, value) {
-        return __awaiter(this, void 0, void 0, function () {
-            var batch;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        batch = module.client.batch();
-                        keys.forEach(function (k) { return batch.srem(String(k), value); });
-                        return [4 /*yield*/, (0, helpers_1.execBatch)(batch)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    // isSetMember checks if a value is a member of a set
-    module.isSetMember = function (key, value) {
-        return __awaiter(this, void 0, void 0, function () {
-            var result;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, module.client.sismember(key, value)];
-                    case 1:
-                        result = _a.sent();
-                        return [2 /*return*/, result === 1];
-                }
-            });
-        });
-    };
-    // isSetMembers checks if values are members of a set
-    module.isSetMembers = function (key, values) {
-        return __awaiter(this, void 0, void 0, function () {
-            var batch, results;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        batch = module.client.batch();
-                        values.forEach(function (v) { return batch.sismember(String(key), String(v)); });
-                        return [4 /*yield*/, (0, helpers_1.execBatch)(batch)];
-                    case 1:
-                        results = _a.sent();
-                        return [2 /*return*/, results ? (0, helpers_1.resultsToBool)(results) : null];
-                }
-            });
-        });
-    };
-    // isMemberOfSets checks if a value is a member of multiple sets
-    module.isMemberOfSets = function (sets, value) {
-        return __awaiter(this, void 0, void 0, function () {
-            var batch, results;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        batch = module.client.batch();
-                        sets.forEach(function (s) { return batch.sismember(String(s), String(value)); });
-                        return [4 /*yield*/, (0, helpers_1.execBatch)(batch)];
-                    case 1:
-                        results = _a.sent();
-                        return [2 /*return*/, results ? (0, helpers_1.resultsToBool)(results) : null];
-                }
-            });
-        });
-    };
-    // getSetMembers returns all members of a set
-    module.getSetMembers = function (key) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, module.client.smembers(key)];
-                    case 1: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
-    // getSetsMembers returns all members of multiple sets
-    module.getSetsMembers = function (keys) {
-        return __awaiter(this, void 0, void 0, function () {
-            var batch;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        batch = module.client.batch();
-                        keys.forEach(function (k) { return batch.smembers(String(k)); });
-                        return [4 /*yield*/, (0, helpers_1.execBatch)(batch)];
-                    case 1: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
-    // setCount returns the number of members in a set
-    module.setCount = function (key) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, module.client.scard(key)];
-                    case 1: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
-    // setsCount returns the number of members in multiple sets
-    module.setsCount = function (keys) {
-        return __awaiter(this, void 0, void 0, function () {
-            var batch;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        batch = module.client.batch();
-                        keys.forEach(function (k) { return batch.scard(String(k)); });
-                        return [4 /*yield*/, (0, helpers_1.execBatch)(batch)];
-                    case 1: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
-    // setRemoveRandom removes a random member from a set
-    module.setRemoveRandom = function (key) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, module.client.spop(key)];
-                    case 1: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
-    return module;
-}
