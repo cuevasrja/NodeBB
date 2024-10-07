@@ -1,3 +1,5 @@
+import { execBatch, resultsToBool } from './helpers';
+
 // Interfaces for the Redis client
 interface Client {
     sadd: (key: string, value: string | string[]) => Promise<void>;
@@ -28,8 +30,8 @@ interface ModuleWithClient {
 }
 
 export default function (module: ModuleWithClient): ModuleWithClient {
-	// eslint-disable-next-line @typescript-eslint/no-require-imports
-	const { execBatch, resultsToBool } = require('./helpers');
+	// // eslint-disable-next-line @typescript-eslint/no-require-imports
+	// const { execBatch, resultsToBool } = require('./helpers');
 
 	// setAdd adds a value to a set
 	module.setAdd = async function (key: string, value: string | string[]): Promise<void> {

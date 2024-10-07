@@ -37,9 +37,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = default_1;
+var helpers_1 = require("./helpers");
 function default_1(module) {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    var _a = require('./helpers'), execBatch = _a.execBatch, resultsToBool = _a.resultsToBool;
+    // // eslint-disable-next-line @typescript-eslint/no-require-imports
+    // const { execBatch, resultsToBool } = require('./helpers');
     // setAdd adds a value to a set
     module.setAdd = function (key, value) {
         return __awaiter(this, void 0, void 0, function () {
@@ -72,7 +73,7 @@ function default_1(module) {
                         }
                         batch = module.client.batch();
                         keys.forEach(function (k) { return batch.sadd(String(k), String(value)); });
-                        return [4 /*yield*/, execBatch(batch)];
+                        return [4 /*yield*/, (0, helpers_1.execBatch)(batch)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -98,7 +99,7 @@ function default_1(module) {
                         }
                         batch = module.client.batch();
                         key.forEach(function (k) { return batch.srem(String(k), value); });
-                        return [4 /*yield*/, execBatch(batch)];
+                        return [4 /*yield*/, (0, helpers_1.execBatch)(batch)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -115,7 +116,7 @@ function default_1(module) {
                     case 0:
                         batch = module.client.batch();
                         keys.forEach(function (k) { return batch.srem(String(k), value); });
-                        return [4 /*yield*/, execBatch(batch)];
+                        return [4 /*yield*/, (0, helpers_1.execBatch)(batch)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -146,10 +147,10 @@ function default_1(module) {
                     case 0:
                         batch = module.client.batch();
                         values.forEach(function (v) { return batch.sismember(String(key), String(v)); });
-                        return [4 /*yield*/, execBatch(batch)];
+                        return [4 /*yield*/, (0, helpers_1.execBatch)(batch)];
                     case 1:
                         results = _a.sent();
-                        return [2 /*return*/, results ? resultsToBool(results) : null];
+                        return [2 /*return*/, results ? (0, helpers_1.resultsToBool)(results) : null];
                 }
             });
         });
@@ -163,10 +164,10 @@ function default_1(module) {
                     case 0:
                         batch = module.client.batch();
                         sets.forEach(function (s) { return batch.sismember(String(s), String(value)); });
-                        return [4 /*yield*/, execBatch(batch)];
+                        return [4 /*yield*/, (0, helpers_1.execBatch)(batch)];
                     case 1:
                         results = _a.sent();
-                        return [2 /*return*/, results ? resultsToBool(results) : null];
+                        return [2 /*return*/, results ? (0, helpers_1.resultsToBool)(results) : null];
                 }
             });
         });
@@ -191,7 +192,7 @@ function default_1(module) {
                     case 0:
                         batch = module.client.batch();
                         keys.forEach(function (k) { return batch.smembers(String(k)); });
-                        return [4 /*yield*/, execBatch(batch)];
+                        return [4 /*yield*/, (0, helpers_1.execBatch)(batch)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -217,7 +218,7 @@ function default_1(module) {
                     case 0:
                         batch = module.client.batch();
                         keys.forEach(function (k) { return batch.scard(String(k)); });
-                        return [4 /*yield*/, execBatch(batch)];
+                        return [4 /*yield*/, (0, helpers_1.execBatch)(batch)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
