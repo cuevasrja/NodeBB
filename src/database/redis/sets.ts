@@ -1,3 +1,17 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
+/* eslint-disable no-return-assign */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable no-use-before-define */
+/* eslint-disable no-bitwise */
+/* eslint-disable no-cond-assign */
+/* eslint-disable no-nested-ternary */
+/* eslint-disable no-plusplus */
+/* eslint-disable no-continue */
+/* eslint-disable no-multi-assign */
+/* eslint-disable no-void */
+/* eslint-disable max-len */
+/* eslint-disable no-sequences */
+
 'use strict';
 
 import * as helpers from './helpers';
