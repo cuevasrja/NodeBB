@@ -1,14 +1,27 @@
-/* eslingt-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { execBatch, resultsToBool } from './helpers';
 
+interface Batch {
+	sadd(key: string, value: string | string[]): void;
+	srem(key: string, value: string | string[]): void;
+	sismember(key: string, value: string): void;
+	smembers(key: string): void;
+	scard(key: string): void;
+	spop(key: string): void;
+	exec(): Promise<unknown[]>;
+}
+
+interface ClientRedis {
+	sadd(key: string, value: string | string[]): Promise<void>;
+	srem(key: string, value: string | string[]): Promise<void>;
+	sismember(key: string, value: string): Promise<number>;
+	smembers(key: string): Promise<string[]>;
+	scard(key: string): Promise<number>;
+	spop(key: string): Promise<string | null>;
+	batch(): Batch;
+}
+
 interface Module {
-    client: any;
+    client: ClientRedis;
     setAdd(key: string, value: string | string[]): Promise<void>;
     setsAdd(keys: string[], value: string): Promise<void>;
     setRemove(key: string | string[], value: string | string[]): Promise<void>;
@@ -73,15 +86,15 @@ module.exports = function (module: Module): Module {
 	module.isSetMembers = async function (key: string, values: string[]): Promise<boolean[] | null> {
 		const batch = module.client?.batch();
 		values.forEach(v => batch.sismember(String(key), String(v)));
-		const results = await execBatch(batch);
-		return results ? resultsToBool(results) : null;
+		const results = await execBatch(batch) as unknown[];
+		return results ? resultsToBool(results) as boolean[] : null;
 	};
 
 	module.isMemberOfSets = async function (sets: string[], value: string): Promise<boolean[] | null> {
 		const batch = module.client?.batch();
 		sets.forEach(s => batch.sismember(String(s), String(value)));
-		const results = await execBatch(batch);
-		return results ? resultsToBool(results) : null;
+		const results = await execBatch(batch) as unknown[];
+		return results ? resultsToBool(results) as boolean[] : null;
 	};
 
 	module.getSetMembers = async function (key: string): Promise<string[]> {
@@ -91,7 +104,7 @@ module.exports = function (module: Module): Module {
 	module.getSetsMembers = async function (keys: string[]): Promise<string[][]> {
 		const batch = module.client?.batch();
 		keys.forEach(k => batch.smembers(String(k)));
-		return await execBatch(batch);
+		return await execBatch(batch) as string[][];
 	};
 
 	module.setCount = async function (key: string): Promise<number> {
@@ -101,7 +114,7 @@ module.exports = function (module: Module): Module {
 	module.setsCount = async function (keys: string[]): Promise<number[]> {
 		const batch = module.client?.batch();
 		keys.forEach(k => batch.scard(String(k)));
-		return await execBatch(batch);
+		return await execBatch(batch) as number[];
 	};
 
 	module.setRemoveRandom = async function (key: string): Promise<string | null> {
