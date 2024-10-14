@@ -54,7 +54,7 @@ module.exports = function (module: Module): Module {
 		}
 		const batch = module.client.batch();
 		keys.forEach(k => batch.sadd(String(k), String(value)));
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 		await helpers.execBatch(batch);
 	};
 
@@ -71,14 +71,14 @@ module.exports = function (module: Module): Module {
 
 		const batch = module.client.batch();
 		key.forEach(k => batch.srem(String(k), value));
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 		await helpers.execBatch(batch);
 	};
 
 	module.setsRemove = async function (keys: string[], value: string | string[]): Promise<void> {
 		const batch = module.client.batch();
 		keys.forEach(k => batch.srem(String(k), value));
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 		await helpers.execBatch(batch);
 	};
 
@@ -90,18 +90,18 @@ module.exports = function (module: Module): Module {
 	module.isSetMembers = async function (key: string, values: string[]): Promise<boolean[] | null> {
 		const batch = module.client.batch();
 		values.forEach(v => batch.sismember(String(key), String(v)));
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 		const results = await helpers.execBatch(batch) as unknown[];
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 		return results ? helpers.resultsToBool(results) as boolean[] : null;
 	};
 
 	module.isMemberOfSets = async function (sets: string[], value: string): Promise<boolean[] | null> {
 		const batch = module.client.batch();
 		sets.forEach(s => batch.sismember(String(s), String(value)));
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 		const results = await helpers.execBatch(batch) as unknown[];
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 		return results ? helpers.resultsToBool(results) as boolean[] : null;
 	};
 
@@ -112,7 +112,7 @@ module.exports = function (module: Module): Module {
 	module.getSetsMembers = async function (keys: string[]): Promise<string[][]> {
 		const batch = module.client.batch();
 		keys.forEach(k => batch.smembers(String(k)));
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 		return await helpers.execBatch(batch) as string[][];
 	};
 
@@ -123,7 +123,7 @@ module.exports = function (module: Module): Module {
 	module.setsCount = async function (keys: string[]): Promise<number[]> {
 		const batch = module.client.batch();
 		keys.forEach(k => batch.scard(String(k)));
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 		return await helpers.execBatch(batch) as number[];
 	};
 
