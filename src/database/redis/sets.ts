@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-var-requires
-const { execBatch, resultsToBool } = require('./helpers');
+const helpers = require('./helpers');
 
 interface Batch {
 	sadd(key: string, value: string | string[]): void;
@@ -45,17 +45,17 @@ module.exports = function (module: Module): Module {
 		if (!value.length) {
 			return;
 		}
-		await module.client?.sadd(key, value);
+		await module.client.sadd(key, value);
 	};
 
 	module.setsAdd = async function (keys: string[], value: string): Promise<void> {
 		if (!Array.isArray(keys) || !keys.length) {
 			return;
 		}
-		const batch = module.client?.batch();
+		const batch = module.client.batch();
 		keys.forEach(k => batch.sadd(String(k), String(value)));
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-		await execBatch(batch);
+		await helpers.execBatch(batch);
 	};
 
 	module.setRemove = async function (key: string | string[], value: string | string[]): Promise<void> {
@@ -69,66 +69,66 @@ module.exports = function (module: Module): Module {
 			return;
 		}
 
-		const batch = module.client?.batch();
+		const batch = module.client.batch();
 		key.forEach(k => batch.srem(String(k), value));
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-		await execBatch(batch);
+		await helpers.execBatch(batch);
 	};
 
 	module.setsRemove = async function (keys: string[], value: string | string[]): Promise<void> {
-		const batch = module.client?.batch();
+		const batch = module.client.batch();
 		keys.forEach(k => batch.srem(String(k), value));
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-		await execBatch(batch);
+		await helpers.execBatch(batch);
 	};
 
 	module.isSetMember = async function (key: string, value: string): Promise<boolean> {
-		const result = await module.client?.sismember(key, value);
+		const result = await module.client.sismember(key, value);
 		return result === 1;
 	};
 
 	module.isSetMembers = async function (key: string, values: string[]): Promise<boolean[] | null> {
-		const batch = module.client?.batch();
+		const batch = module.client.batch();
 		values.forEach(v => batch.sismember(String(key), String(v)));
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-		const results = await execBatch(batch) as unknown[];
+		const results = await helpers.execBatch(batch) as unknown[];
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-		return results ? resultsToBool(results) as boolean[] : null;
+		return results ? helpers.resultsToBool(results) as boolean[] : null;
 	};
 
 	module.isMemberOfSets = async function (sets: string[], value: string): Promise<boolean[] | null> {
-		const batch = module.client?.batch();
+		const batch = module.client.batch();
 		sets.forEach(s => batch.sismember(String(s), String(value)));
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-		const results = await execBatch(batch) as unknown[];
+		const results = await helpers.execBatch(batch) as unknown[];
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-		return results ? resultsToBool(results) as boolean[] : null;
+		return results ? helpers.resultsToBool(results) as boolean[] : null;
 	};
 
 	module.getSetMembers = async function (key: string): Promise<string[]> {
-		return await module.client?.smembers(key);
+		return await module.client.smembers(key);
 	};
 
 	module.getSetsMembers = async function (keys: string[]): Promise<string[][]> {
-		const batch = module.client?.batch();
+		const batch = module.client.batch();
 		keys.forEach(k => batch.smembers(String(k)));
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-		return await execBatch(batch) as string[][];
+		return await helpers.execBatch(batch) as string[][];
 	};
 
 	module.setCount = async function (key: string): Promise<number> {
-		return await module.client?.scard(key);
+		return await module.client.scard(key);
 	};
 
 	module.setsCount = async function (keys: string[]): Promise<number[]> {
-		const batch = module.client?.batch();
+		const batch = module.client.batch();
 		keys.forEach(k => batch.scard(String(k)));
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-		return await execBatch(batch) as number[];
+		return await helpers.execBatch(batch) as number[];
 	};
 
 	module.setRemoveRandom = async function (key: string): Promise<string | null> {
-		return await module.client?.spop(key);
+		return await module.client.spop(key);
 	};
 
 	return module;
